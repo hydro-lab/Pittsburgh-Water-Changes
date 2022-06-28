@@ -1,5 +1,3 @@
-
-
 library(raster) # to import image
 library(sp)
 library(rgdal)
@@ -31,15 +29,6 @@ cover.crp<-crop(cover,crp_ext)
 
 
 
-
-crs(crp_ext) <- "+proj=utm +zone=36 +datum=WGS84"
-pic_ext <- as(extent(pic), 'SpatialPolygons') # Extent of image
-crs(pic_ext) <- "+proj=utm +zone=36 +datum=WGS84"
-
-
-# To see new NDWI image
-rm(pic) # to free up RAM
-ndwi_df <- as.data.frame(ndwi, xy = TRUE)
 ggplot() + 
   geom_raster(data=ndwi_df, aes(x=x,y=y,fill=layer)) +
   scale_fill_gradientn(colours = topo.colors(5), limits = c(-1,0.1)) +
