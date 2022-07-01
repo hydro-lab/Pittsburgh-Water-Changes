@@ -11,9 +11,11 @@ setwd("D:\\GIS\\layers")
 # ------------------------------------------------------------------------------
 # Import raster image
 cover24 <- raster("landlayers\\LCMAP_CU_2009_V12_LCPRI.tif") 
+cover24 <- raster("/Volumes/T7/pa_hydro/LCMAP_CU_2009_V12_LCPRI.tif")
 
 # To crop the image
 crp_ext24 <- readOGR("Chartier\\globalwatershed.shp")
+crp_ext24 <- readOGR("/Volumes/T7/pa_hydro/Chartier/globalwatershed.shp")
 #renamed "cover" for 2009 to "cover25" to help numerically organize
 
 #cover35 <- raster("landlayer\\LCMAP_CU_2020_V12_LCPRI.tif")
@@ -61,12 +63,12 @@ crp_ext24 <- readOGR("Chartier\\globalwatershed.shp")
 
 sr<-"+proj=longlat +datum=WGS84"
 cover.proj<- projectRaster(cover,crs = sr)
+crp_ext24.proj <- projectExtent(crp_ext24, crs = sr)
 
 
 
 
-
-cover.crp<-crop(cover,crp_ext)
+cover.crp<-crop(cover.proj,crp_ext24)
 
 
 
