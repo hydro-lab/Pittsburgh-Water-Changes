@@ -82,113 +82,43 @@ writeRaster(ndwi,
             filename= "20220102_ndwi.tif",
             format = "GTiff", # save as a tif, save as a FLOAT if not default, not integer
             overwrite = TRUE)  # OPTIONAL - be careful. This will OVERWRITE previous files.
-
-# ------------------------------------------------------------------------------
-## TO DETERMINE WATER THRESHOLD
-# Build histogram 
-h = hist(ndwi, # built-in histogram function
-         breaks=seq(-1,1,by=0.01), # span of possible NDWI values
-         plot=FALSE) 
-
-bins <- h$mids # positions    number
-v <- h$counts # counts        integer
-
-# Allocate arrays used in analysis
-windows <- 10 # number of averaging windows
-avg <- array(0, dim = c(length(bins),windows)) # moving average filter
-peaks <- array(0, dim = c(length(bins),windows)) # peak locations
-nop <- array(0, dim = c(windows)) # number of peaks found
-
-# Loop around number averaging window values
-for (w in 1:10){
-  # filter values (v=h$counts) with the averaging window size 2*w+1; therefore, w is the radius of the window
-  for (k in (w+1):(200-w)){ # assume tails are unimportant, default to zero based on preallocation
-    avg[k,w] <- ((sum(v[(k-w):(k+w)]))/((2*w)+1))
-  }
-  # identify and number peaks
-  cnt <- 0
-  for (j in (w+1):(200-w)){
-    if ( ((avg[j-1,w])<(avg[j,w])) & ((avg[j+1,w])<(avg[j,w])) ) {
-      cnt <- (cnt+1) # if a peak, add one to count
-      peaks[j,w] <- cnt # add peak count to location
-      nop[w] <- cnt # count peaks
-      
-    }
+crp.chartier2009 <- raster("D:\\GIS\\layers\\Chartier\\2009chartier.tif")
+nrow(crp.chartier2009)
+ncol(crp.chartier2009)
+crp.chartier2009[1,1]
+#JULY 1 CHANGES: I created a matrix first to help when defining loop later but this did not work. 
+#I think my matrix is only halfway defined but I'm not entirely sure if I really need one.
+m <- matrix(nrow = 5, ncol = 5)
+for(i in 1:1404){
+  + for(j in 1:816){
+  + m[i-6,j-6] <- abs(i-j)  
   }
 }
+print(m)
+#JULY 3 CHANGES: I tried to do the for loop without a matrix until I understand it better (or absolutely need one)
 
-# Set error values for the result vectors in case neither two nor three peaks are found:
-threepeak <- -1
-twopeak <- -1
 
-# Detect peaks
-for (w in 1:10){
-  # testing in three peaks
-  # due to the order of the w variable, only the 'smoothest' result will be kept
-  if ((nop[w])==3){
-    # finds the second and third peak
-    for (j in 1:200){
-      if ((peaks[j,w])==2){
-        sec <- j # stores the index of the second peak
-      }
-      if ((peaks[j,w])==3){
-        thr <- j # stores the index of the third peak
-      }
-    }
-    # finds minimum between second and third peak
-    m <- max(v) # create variable for minimum, initially set higher than any value
-    for (j in (sec):(thr)){
-      if ((avg[j,w])<m){
-        goal <- j
-        m <- avg[j,w]
-      }
-    }
-    threepeak <- (bins[(goal)])
+crp.chartier2009 <- raster("D:\\GIS\\layers\\Chartier\\2009chartier.tif")
+crp.chartier2009 <- 1 #I put chartier2009 value as 1 because that is the band value in GIS that identifies developed areas. 
+for(i in 1:1404){
+  
+  print(i+1) #I did not include the column yet, but I am getting specific values for the rows (not every number from the loop condidtion)
+ 
+  #JULY 5 CHANGES
+  
+  for(j in 1:816){
+    print(j) #when doing the columns+rows together it's hard to distinguish the values it prints for one another. I can't view them in a table or plot them.
+    # also, I get every number 1-816 for j. I don't know if this should be expected or not.
   }
-  # test in case exactly three peaks were not found
-  if ((nop[w])==2){
-    # find the position of the first and second (the only) peaks
-    for (j in 1:200){
-      if ((peaks[j,w])==1){
-        fst <- j # stores the index of the second peak
-      }
-      if ((peaks[j,w])==2){
-        sec <- j # stores the index of the third peak
-      }
-    }
-    # finds minimum between first and second peak
-    m <- max(v) # create variable for minimum, initially set higher than any value
-    for (j in (fst):(sec)){
-      if ((avg[j,w])<m){
-        goal <- j
-        m <- avg[j,w]
-      }
-    }
-    twopeak <- (bins[(goal)])
-  }
+  
 }
+  
 
-# Store values
-ndwi_values <- data.frame(ndwi@data@values)
-ndwi_values <- rename(ndwi_values, data=ndwi.data.values)
 
-# histogram visualization
-h <- ggplot(ndwi_values, aes(x=data)) +
-  geom_histogram(breaks = (c(0:200)/100-1), color = "black", fill = "gray", na.rm = TRUE) +
-  geom_vline(aes(xintercept = twopeak), color = "green") +
-  geom_vline(aes(xintercept = threepeak), color = "blue") +
-  xlab("NDWI") +
-  ylab("Count") +
-  theme(panel.background = element_rect(fill = "white", colour = "black")) +
-  theme(aspect.ratio = 1) +
-  theme(axis.text = element_text(face = "plain", size = 24)) +
-  theme(axis.title = element_text(face = "plain", size = 24))
-ggsave("20210102_hist.eps", h, device = "eps", dpi = 72)
 
-# Analysis
-# The two-peak analysis provides a more stable threshold value by visual 
-# inspection; therefore, we will set the threshold to twopeak:
-ndwi_threshold <- twopeak
+
+
+
 
 # ------------------------------------------------------------------------------
 ## CALCULATE AREA
