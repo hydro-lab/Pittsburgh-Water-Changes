@@ -102,7 +102,7 @@ crp.chartier2009 <- raster("D:\\GIS\\layers\\Chartier\\2009chartier.tif")
 crp.chartier2009 <- raster("/Volumes/T7/pa_hydro/Chartier/2009chartier.tif")
 #crp.chartier2009 <- 1 #I put chartier2009 value as 1 because that is the band value in GIS that identifies developed areas. 
 cnt <- 0 # counting variable
-for(i in 1:nrow(crp.chartier2009)){
+for(i in 1:nrow(crp.chartier2009)){ # this runs very slowly...
   
   #print(i+1) #I did not include the column yet, but I am getting specific values for the rows (not every number from the loop condidtion)
  # not sure what this is...
@@ -111,6 +111,12 @@ for(i in 1:nrow(crp.chartier2009)){
   for(j in 1:ncol(crp.chartier2009)){
     #print(j) #when doing the columns+rows together it's hard to distinguish the values it prints for one another. I can't view them in a table or plot them.
     # also, I get every number 1-816 for j. I don't know if this should be expected or not.
+       
+       if (is.na(crp.chartier2009[i,j])==FALSE) { # determines if the value is not NA
+            if (crp.chartier2009[i,j]==1) { # sets impermeable value(s), add more here.
+                 cnt <- cnt +1
+            }
+       }
        
   }
   
