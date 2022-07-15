@@ -104,7 +104,6 @@ print(m)
 
 #crp.chartier2009 <- raster("D:\\GIS\\layers\\Chartier\\2009chartier.tif")
 #crp.chartier2009 <- raster("/Volumes/T7/pa_hydro/Chartier/2009chartier.tif")
-#img <- as.matrix(crp.chartier2009)
 
 im <- list.files("/Volumes/T7/pa_hydro/Chartier", 
                  pattern = "*.tif$", 
@@ -117,13 +116,15 @@ for (i in 1:length(im)) {
      a <- str_split(im[i],"/") # splits all directory names
      b <- str_split(a[[1]][length(a[[1]])],".tif") # length(a[[1]]) goes to last element, i.e., filename, removes extension
      c <- str_split(b[[1]][1],"") # finding year
-     yr[i] <- paste0(c[[1]][1], c[[1]][2], c[[1]][3], c[[1]][4])
+     d <- paste0(c[[1]][1], c[[1]][2], c[[1]][3], c[[1]][4])
+     yr[i] <- as.numeric(d)
 }
 ls <- data.frame(im,yr)
 rm(im,yr)
 
 registerDoParallel(detectCores())
 imperm <- foreach (q = 1:(nrow(ls)), .combine = 'rbind') %dopar% {
+     ye <- as.numeric(ls$yr[q])
      img <- raster(ls$im[q])
      img <- as.matrix(img)
      cnt <- 0 # counting variable
@@ -136,11 +137,34 @@ imperm <- foreach (q = 1:(nrow(ls)), .combine = 'rbind') %dopar% {
                }
           }
      }
-     print(c(ls$yr[q],cnt)) # "prints" to output array: year, count of impermeable surface
+     print(c(ye,cnt)) # "prints" to output array: year, count of impermeable surface
 }
 
+imperm <- data.frame(imperm)
+names(imperm) <- c('yr','area')
 
+imperm$change <- 0
+for (i in 3:nrow(imperm)) {
+     imperm$change[i] <- imperm$area[i]/imperm$area[2]-1
+}
 
+ggplot(imperm) +
+     geom_line(aes(x=yr,y=area)) +
+     labs(x = "Year", y = "Area") + 
+     xlim(1985,2015) + 
+     ylim(200000,250000) + 
+     theme(panel.background = element_rect(fill = "white", colour = "black")) + 
+     theme(aspect.ratio = 1) + 
+     theme(axis.text = element_text(face = "plain", size = 12))
+     
+ggplot(imperm) +
+     geom_point(aes(x=yr,y=change)) +
+     labs(x = "Year", y = "Change (since 1986)") + 
+     xlim(1985,2015) + 
+     ylim(0,0.1) + 
+     theme(panel.background = element_rect(fill = "white", colour = "black")) + 
+     theme(aspect.ratio = 1) + 
+     theme(axis.text = element_text(face = "plain", size = 12))
 
 # ------------------------------------------------------------------------------
 ## CALCULATE AREA
