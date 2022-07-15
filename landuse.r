@@ -2,6 +2,7 @@ library(raster) # to import image
 library(sp)
 library(rgdal)
 library(rgeos) # gCovers - test extents, not needed to crop
+library(doParallel)
 library(dplyr) # used first in rename - general data frame management 
 library(stringr)
 library(ggplot2) # plotting tools (histogram)
@@ -121,8 +122,9 @@ for (i in 1:length(im)) {
 ls <- data.frame(im,yr)
 rm(im,yr)
 
-
-img <- raster(ls$im[i])
+registerDoParallel(detectCores())
+imperm <- foreach (q = 1:(nrow(ls)), .combine = 'rbind') %dopar% {
+img <- raster(ls$im[q])
 img <- as.matrix(img)
 
 #crp.chartier2009 <- 1 #I put chartier2009 value as 1 because that is the band value in GIS that identifies developed areas. 
@@ -146,8 +148,8 @@ for(i in 1:nrow(img)){
   }
   
 }
-  
-
+print(c(ls$yr[q],cnt)) # "prints" to output array: year, count of impermeable surface
+}
 
 
 
