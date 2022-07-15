@@ -124,34 +124,20 @@ rm(im,yr)
 
 registerDoParallel(detectCores())
 imperm <- foreach (q = 1:(nrow(ls)), .combine = 'rbind') %dopar% {
-img <- raster(ls$im[q])
-img <- as.matrix(img)
-
-#crp.chartier2009 <- 1 #I put chartier2009 value as 1 because that is the band value in GIS that identifies developed areas. 
-cnt <- 0 # counting variable
-for(i in 1:nrow(img)){
-  
-  #print(i+1) #I did not include the column yet, but I am getting specific values for the rows (not every number from the loop condidtion)
- # not sure what this is...
-  #JULY 5 CHANGES
-  
-  for(j in 1:ncol(img)){
-    #print(j) #when doing the columns+rows together it's hard to distinguish the values it prints for one another. I can't view them in a table or plot them.
-    # also, I get every number 1-816 for j. I don't know if this should be expected or not.
-       
-       if (is.na(img[i,j])==FALSE) { # determines if the value is not NA
-            if (img[i,j]==1) { # sets impermeable value(s), add more here.
-                 cnt <- cnt +1
-            }
-       }
-       
-  }
-  
+     img <- raster(ls$im[q])
+     img <- as.matrix(img)
+     cnt <- 0 # counting variable
+     for(i in 1:nrow(img)){
+          for(j in 1:ncol(img)){
+               if (is.na(img[i,j])==FALSE) { # determines if the value is not NA
+                    if (img[i,j]==1) { # sets impermeable value(s), add more here.
+                         cnt <- cnt +1
+                    }
+               }
+          }
+     }
+     print(c(ls$yr[q],cnt)) # "prints" to output array: year, count of impermeable surface
 }
-print(c(ls$yr[q],cnt)) # "prints" to output array: year, count of impermeable surface
-}
-
-
 
 
 
