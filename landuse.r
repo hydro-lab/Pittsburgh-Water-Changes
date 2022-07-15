@@ -3,7 +3,14 @@ library(sp)
 library(rgdal)
 library(rgeos) # gCovers - test extents, not needed to crop
 library(dplyr) # used first in rename - general data frame management 
+library(stringr)
 library(ggplot2) # plotting tools (histogram)
+
+##################################################################
+#                                                                #
+#                        Crop from file                          #
+#                                                                #
+##################################################################
 
 # Set your working directory.  Avoid spaces in your path and OneDrive
 setwd("D:\\GIS\\layers")
@@ -62,16 +69,7 @@ crp_ext24 <- readOGR("Chartier\\globalwatershed.shp")
 sr<-"+proj=longlat +datum=WGS84"
 cover.proj<- projectRaster(cover,crs = sr)
 
-
-
-
-
 cover.crp<-crop(cover,crp_ext)
-
-
-
-
-
 
 ggplot() + 
   geom_raster(data=ndwi_df, aes(x=x,y=y,fill=layer)) +
@@ -97,10 +95,36 @@ for(i in 1:1404){
 print(m)
 #JULY 3 CHANGES: I tried to do the for loop without a matrix until I understand it better (or absolutely need one)
 
+##################################################################
+#                                                                #
+#                   Analyze from cropped image                   #
+#                                                                #
+##################################################################
 
-crp.chartier2009 <- raster("D:\\GIS\\layers\\Chartier\\2009chartier.tif")
-crp.chartier2009 <- raster("/Volumes/T7/pa_hydro/Chartier/2009chartier.tif")
-img <- as.matrix(crp.chartier2009)
+#crp.chartier2009 <- raster("D:\\GIS\\layers\\Chartier\\2009chartier.tif")
+#crp.chartier2009 <- raster("/Volumes/T7/pa_hydro/Chartier/2009chartier.tif")
+#img <- as.matrix(crp.chartier2009)
+
+im <- list.files("/Volumes/T7/pa_hydro/Chartier", 
+                 pattern = "*.tif$", 
+                 full.names = TRUE, 
+                 recursive = TRUE, 
+                 ignore.case=TRUE, 
+                 include.dirs = TRUE)
+yr <- array(NA, dim = length(im))
+for (i in 1:length(im)) {
+     a <- str_split(im[i],"/") # splits all directory names
+     b <- str_split(a[[1]][length(a[[1]])],".tif") # length(a[[1]]) goes to last element, i.e., filename, removes extension
+     c <- str_split(b[[1]][1],"") # finding year
+     yr[i] <- paste0(c[[1]][1], c[[1]][2], c[[1]][3], c[[1]][4])
+}
+ls <- data.frame(im,yr)
+rm(im,yr)
+
+
+img <- raster(ls$im[i])
+img <- as.matrix(img)
+
 #crp.chartier2009 <- 1 #I put chartier2009 value as 1 because that is the band value in GIS that identifies developed areas. 
 cnt <- 0 # counting variable
 for(i in 1:nrow(img)){
