@@ -1,8 +1,12 @@
 library(readr)
+library(lubridate)
 library(devtools)
 library(hydrostats)
 
 dat <- read_tsv("D:\\usgs03049800.tsv", skip = 72)
+dat <- read_tsv("/Volumes/T7/pa_hydro/usgs03049800.tsv", skip = 73)
+dat$dt <- ymd(dat$`10d...3`)
+dat$hy <- hyd.yr(dat$dt)
 dat$ln_peak <- log(dat$peak_va, base = 10)
 first <- dat[1:30,]
 second <- dat[31:60,]
