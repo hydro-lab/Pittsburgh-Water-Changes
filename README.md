@@ -18,3 +18,5 @@ NCEI [Climate Data Online](https://www.ncei.noaa.gov/cdo-web/)
 ### Rivers  
 USGS [Water Data](https://waterdata.usgs.gov/nwis)  
 
+### Land Cover  
+Joint Multi-resolution Land Cover Dataset, [MLDS](https://www.mrlc.gov/data)  
